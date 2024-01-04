@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy 4 elements to &apos;project3/src/main/java/servletPackage&apos;&#x0D;&#x0A;- Original project: &apos;project1&apos;&#x0D;&#x0A;- Destination element: &apos;project3/src/main/java/servletPackage&apos;&#x0D;&#x0A;- Original elements:&#x0D;&#x0A;     project1.P1MainTester.java&#x0D;&#x0A;     project1.Shows.java&#x0D;&#x0A;     project1.ShowWeek.java&#x0D;&#x0A;     netflixAllWeeksGlobalProcessed.txt" description="Copy elements" destination="=project3/src\/main\/java&lt;servletPackage" element1="project1/netflixAllWeeksGlobalProcessed.txt" element2="/&lt;project1{P1MainTester.java" element3="/&lt;project1{Shows.java" element4="/&lt;project1{ShowWeek.java" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1667680109836" units="3" version="1.0"/>
+</session>

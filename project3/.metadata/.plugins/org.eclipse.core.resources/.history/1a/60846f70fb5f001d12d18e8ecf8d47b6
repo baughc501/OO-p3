@@ -1,0 +1,208 @@
+package servletPackage;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * Servlet implementation class DataServlet
+ */
+@WebServlet("/DataServlet")
+public class DataServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+	private Shows allData;
+	private String allWeeksList;
+	private String userName;
+	private String password;
+	private String targetWeek;
+	private ShowWeek showWeekToEdit;
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public DataServlet() {
+        super();
+        allData = new Shows("allData","./servletPackage/netflixAllWeeksGlobalProcessed.txt");
+        
+    }
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	String loginButton = request.getParameter("loginCheck");
+
+    	if(loginButton!=null) {
+    		userName = request.getParameter("userNameParameter");
+    		request.setAttribute("userName",userName);
+    		password = request.getParameter("passwordParameter");
+
+    		if(userName.equals("md") && password.equals("pw")) {
+    			response.getWriter().append("<!DOCTYPE html>\r\n" + 
+    					"<html>\r\n" + 
+    					"<head>\r\n" + 
+    					"<meta charset=\"ISO-8859-1\">\r\n" + 
+    					"<title>Insert title here</title>\r\n" +
+    					"</head>\r\n"+
+    					"<body>\r\n"+
+    					"<div align=\"center\">"+
+    					"<br><br><br>Welcome back to Netflix <br>"+
+    					"Please choose a mode:<br>	<form action=http://localhost:8081/project3/DataServlet\r\n" + 
+    					"		method=\"get\">\r\n" + 
+    					"		<input type=\"hidden\" value=\""+userName+"\" name=\"userName\">\r\n" + 
+    					"		<input type=\"submit\" value=\"Subscriber Mode\" name=\"subscriberModeButton\">\r\n" + 
+    					"		<input type=\"submit\" value=\"Maintenance Mode\" name=\"maintenanceModeButton\">\r\n" + 
+    					"	</form>\r\n" +
+    					"</div>"+
+    					"</body>\r\n" + 
+    					"</html>");	
+
+    		}
+    	}
+    	
+    	//maintenance mode section
+    	else if(request.getParameter("maintenanceModeButton") != null) {
+    		allWeeksList = "<select name=\"weeks\">";
+    		Iterator<ShowWeek> iter = allData.getIterator();
+    		request.setAttribute("userName",userName);
+    		while (iter.hasNext()) {
+    			ShowWeek s = iter.next();
+    			allWeeksList += "<option value=\""+s.getWeek()+"\">"+s.getWeek()+"</option>";
+    		}
+    		allWeeksList += "</select>\r\n";
+    		request.setAttribute("dropDownOptions",allWeeksList); 	
+    		RequestDispatcher rd=request.getRequestDispatcher("/maintenancePage1.jsp");
+    		rd.forward(request,response);
+    	}
+    	//String getShowsButtonStr = request.getParameter("getShowsButton");
+    	else if(request.getParameter("getShowsButton") != null) {
+    		String weekString = request.getParameter("weeks");
+    		request.setAttribute("userName",userName);
+    		targetWeek = request.getParameter("weeks");
+    		request.setAttribute("targetWeek",targetWeek);
+    		ArrayList <ShowWeek> weekList = allData.getOneWeek(weekString);
+    		String showChoice = "showsParameter";
+    		String showChoiceValue = "<select name=\"shows\">";
+    		for (ShowWeek s : weekList) {
+    			String title = s.getShowTitle();
+    			showChoiceValue += "<option value=\""+title+"\">"+title+"</option>";
+    		}
+    		showChoiceValue += "</select>";
+    		request.setAttribute("showChoice",showChoiceValue);
+    		request.setAttribute("showsParameter", showChoiceValue);
+    		RequestDispatcher rd=request.getRequestDispatcher("/maintenancePage2.jsp");
+    		rd.forward(request,response);
+    	}
+    	else if(request.getParameter("editShowButton") != null) {
+    		request.setAttribute("userName",userName);
+    		request.setAttribute("targetWeek",targetWeek);
+    		//String weekString = request.getParameter("weeks");
+    		String showChoiceStr = request.getParameter("shows");
+    		showWeekToEdit = allData.find(showChoiceStr, targetWeek);
+    		String showWeekStr = showWeekToEdit.toString();
+    		request.setAttribute("showWeekStr",showWeekStr);
+    		RequestDispatcher rd=request.getRequestDispatcher("/maintenancePage3.jsp");
+    		rd.forward(request,response);
+    	}
+    	else if(request.getParameter("editItemsButton") != null) {
+    		int checkCount = 0;// = request.getParameter("editTitleCheckbox");
+    		String weekText = request.getParameter("weekTextParameter");
+    		String categoryText = request.getParameter("categoryTextParameter");
+    		String titleText = request.getParameter("titleTextParameter");
+    		String rankText = request.getParameter("rankTextParameter");
+    		String seasonText = request.getParameter("seasonTextParameter");
+    		String hrsViewedText = request.getParameter("hrsViewedTextParameter");
+    		String wksTop10Text = request.getParameter("wksTop10TextParameter");
+    		if(request.getParameter("editWeekCheckbox") != null && weekText != "") {
+    			checkCount++;
+    			showWeekToEdit.setWeek(request.getParameter("weekTextParameter"));
+    			System.out.println(showWeekToEdit);
+    		}
+    		if(request.getParameter("editCategoryCheckbox") != null && categoryText != "") {
+    			checkCount++;
+    			showWeekToEdit.setCategory(request.getParameter("categoryTextParameter"));
+    			System.out.println(showWeekToEdit);
+    		}
+    		if(request.getParameter("editTitleCheckbox") != null && titleText != "") {
+    			checkCount++;
+    			showWeekToEdit.setShowTitle(request.getParameter("titleTextParameter"));
+    			System.out.println(showWeekToEdit);
+    		}
+    		if(request.getParameter("editRankCheckbox") != null && rankText != "") {
+    			checkCount++;
+    			showWeekToEdit.setRank(request.getParameter("rankTextParameter"));
+    			System.out.println(showWeekToEdit);
+    		}
+    		if(request.getParameter("editSeasonCheckbox") != null && seasonText != "") {
+    			checkCount++;
+    			showWeekToEdit.setSeasonTitle(request.getParameter("seasonTextParameter"));
+    			System.out.println(showWeekToEdit);
+    		}
+    		if(request.getParameter("editHrsViewedCheckbox") != null && hrsViewedText != "") {
+    			checkCount++;
+    			showWeekToEdit.setHrsViewed(request.getParameter("hrsViewedTextParameter"));
+    			System.out.println(showWeekToEdit);
+    		}
+    		if(request.getParameter("editWksTop10Checkbox") != null && wksTop10Text != "") {
+    			checkCount++;
+    			showWeekToEdit.setWeeksTop10(request.getParameter("wksTop10TextParameter"));
+    			System.out.println(showWeekToEdit);
+    		}
+    		if(checkCount > 0) {
+    			String editedShowWeekStr = showWeekToEdit.toString();
+    			request.setAttribute("userName",userName);
+        		request.setAttribute("editedShowWeekStr",editedShowWeekStr);
+    			RequestDispatcher rd=request.getRequestDispatcher("/successPage.jsp");
+        		rd.forward(request,response);
+    		}
+    		else {
+    			request.setAttribute("userName",userName);
+    			RequestDispatcher rd=request.getRequestDispatcher("/failPage.html");
+        		rd.forward(request,response);
+    		}
+    		
+    	}
+    	
+    	//subscriber mode section
+    	else if(request.getParameter("subscriberModeButton") != null) {
+    		allWeeksList = "<select name=\"weeks\">";
+    		Iterator<ShowWeek> iter = allData.getIterator();
+    		request.setAttribute("userName",userName);
+    		while (iter.hasNext()) {
+    			ShowWeek s = iter.next();
+    			allWeeksList += "<option value=\""+s.getWeek()+"\">"+s.getWeek()+"</option>";
+    		}
+    		allWeeksList += "</select>\r\n";
+    		request.setAttribute("dropDownOptions",allWeeksList); 	
+    		RequestDispatcher rd=request.getRequestDispatcher("/subscriberPage1.jsp");
+    		rd.forward(request,response);
+    	}
+    	
+    	//log out anywhere this button exists
+    	else if(request.getParameter("logOutButton") != null) {
+    		RequestDispatcher rd=request.getRequestDispatcher("/index.html");   
+    		rd.forward(request,response);
+    	}
+    	
+    	//catch all, log in failed
+    	else {
+    		RequestDispatcher rd=request.getRequestDispatcher("/index.html");   
+    		rd.forward(request,response); 		}
+
+    }
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		doGet(request, response);
+	}
+
+}
